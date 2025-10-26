@@ -76,7 +76,7 @@ private async void button1_Click(object sender, EventArgs e)
     {
         if (!IsAdministrator())
         {
-            var r = MessageBox.Show("L'application nécessite des droits administrateur pour régler l'heure système. Redémarrer en administrateur ?", "Élévation requise", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var r = MessageBox.Show("The application requires administrator rights to set the system time. Restart as administrator ?", "Required elevation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (r == DialogResult.Yes) RestartElevated();
             // sinon continuer sans modifier l'heure
         }
