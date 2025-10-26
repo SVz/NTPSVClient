@@ -5,6 +5,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.IO;
+using System.Text.Json;
+using System.Text;
+using System.Windows.Forms;
 
 public partial class Form1 : Form
 {
@@ -76,7 +80,67 @@ private async void button1_Click(object sender, EventArgs e)
             if (r == DialogResult.Yes) RestartElevated();
             // sinon continuer sans modifier l'heure
         }
-        textBox1.Text = NtpClient.DefaultNtpServer;
+
+        // open config file and read default NTP server
+        var configuredServer = LoadDefaultNtpServerFromConfig();
+        if (!string.IsNullOrWhiteSpace(configuredServer))
+        {
+            textBox1.Text = configuredServer;
+            richTextBox1.AppendText($"NTP server loaded from configuration : {configuredServer}\n");
+        }
+        else
+        {
+            textBox1.Text = NtpClient.DefaultNtpServer;
+            richTextBox1.AppendText($"No NTP server in configuration\nusing default value : {NtpClient.DefaultNtpServer}\n");
+        }
+    }
+
+    /// <summary>
+    /// Cherche un fichier `appsettings.json` à côté de l'exécutable et lit `Ntp:Server` si présent.
+    /// Format attendu :
+    /// {
+    ///   "Ntp": {
+    ///     "Server": "time.windows.com"
+    ///   }
+    /// }
+    /// Si le fichier manque ou la clé est absente, retourne null.
+    /// </summary>
+    private static string? LoadDefaultNtpServerFromConfig()
+    {
+        try
+        {
+            var exeDir = AppDomain.CurrentDomain.BaseDirectory;
+            var configPath = Path.Combine(exeDir, "appsettings.json");
+
+            if (!File.Exists(configPath))
+                return null;
+
+            var json = File.ReadAllText(configPath, Encoding.UTF8);
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("Ntp", out var ntpElement) &&
+                ntpElement.ValueKind == JsonValueKind.Object &&
+                ntpElement.TryGetProperty("Server", out var serverElement) &&
+                serverElement.ValueKind == JsonValueKind.String)
+            {
+                var server = serverElement.GetString();
+                if (!string.IsNullOrWhiteSpace(server))
+                    return server!.Trim();
+            }
+
+            return null;
+        }
+        catch (JsonException)
+        {
+            // fichier malformé
+            MessageBox.Show("Le fichier de configuration 'appsettings.json' est invalide (JSON malformé).", "Configuration invalide", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            // erreurs E/S ou autres
+            MessageBox.Show($"Impossible de lire le fichier de configuration : {ex.Message}", "Erreur de configuration", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return null;
+        }
     }
 }
 
