@@ -49,12 +49,13 @@ partial class Form1
         // checkBox1
         // 
         checkBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        checkBox1.Location = new Point(350, 20);
+        checkBox1.Location = new Point(381, 20);
         checkBox1.Name = "checkBox1";
         checkBox1.Size = new Size(73, 24);
         checkBox1.TabIndex = 1;
         checkBox1.Text = "Sync PC";
         checkBox1.UseVisualStyleBackColor = true;
+        checkBox1.CheckedChanged += checkBox1_CheckedChanged;
         // 
         // richTextBox1
         // 
@@ -63,7 +64,7 @@ partial class Form1
         richTextBox1.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         richTextBox1.Location = new Point(12, 60);
         richTextBox1.Name = "richTextBox1";
-        richTextBox1.Size = new Size(411, 92);
+        richTextBox1.Size = new Size(442, 92);
         richTextBox1.TabIndex = 2;
         richTextBox1.Text = "";
         // 
@@ -72,20 +73,20 @@ partial class Form1
         textBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         textBox1.Location = new Point(121, 20);
         textBox1.Name = "textBox1";
-        textBox1.Size = new Size(191, 23);
+        textBox1.Size = new Size(222, 23);
         textBox1.TabIndex = 3;
         // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(435, 164);
+        ClientSize = new Size(466, 164);
         Controls.Add(textBox1);
         Controls.Add(richTextBox1);
         Controls.Add(checkBox1);
         Controls.Add(button1);
         Icon = (Icon)resources.GetObject("$this.Icon");
-        MinimumSize = new Size(451, 203);
+        MinimumSize = new Size(482, 203);
         Name = "Form1";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "NTP Client V1.0 by SVz (2o25)";
