@@ -17,39 +17,39 @@ public partial class Form1 : Form
         InitializeComponent();
     }
 
-private static bool IsAdministrator()
-{
-    using var identity = WindowsIdentity.GetCurrent();
-    var principal = new WindowsPrincipal(identity);
-    return principal.IsInRole(WindowsBuiltInRole.Administrator);
-}
-
-private static void RestartElevated()
-{
-    var psi = new ProcessStartInfo
+    private static bool IsAdministrator()
     {
-        FileName = Application.ExecutablePath,
-        UseShellExecute = true,
-        Verb = "runas"
-    };
-    try
-    {
-        Process.Start(psi);
+        using var identity = WindowsIdentity.GetCurrent();
+        var principal = new WindowsPrincipal(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
-    catch
-    {
-        // L'utilisateur a annulé l'élévation — ne rien faire
-    }
-    Application.Exit();
-}
 
-private async void button1_Click(object sender, EventArgs e)
+    private static void RestartElevated()
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = Application.ExecutablePath,
+            UseShellExecute = true,
+            Verb = "runas"
+        };
+        try
+        {
+            Process.Start(psi);
+        }
+        catch
+        {
+            // L'utilisateur a annulé l'élévation — ne rien faire
+        }
+        Application.Exit();
+    }
+
+    private async void button1_Click(object sender, EventArgs e)
     {
         try
         {
             DateTime networkTime = await NtpClient.GetNetworkTimeAsync(textBox1.Text);
             richTextBox1.AppendText($"Get time successfully on {textBox1.Text}!\nNew time: {networkTime}\n");
-            
+
             // Set the system time if ckeckbox is checked
             if (checkBox1.Checked)
             {
@@ -67,7 +67,7 @@ private async void button1_Click(object sender, EventArgs e)
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error getting network time: {ex.Message}", 
+            MessageBox.Show($"Error getting network time: {ex.Message}",
                 "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -141,6 +141,35 @@ private async void button1_Click(object sender, EventArgs e)
             MessageBox.Show($"Impossible de lire le fichier de configuration : {ex.Message}", "Erreur de configuration", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return null;
         }
+    }
+    // Sauvegarde le serveur NTP par défaut dans le fichier de configuration `appsettings.json`.
+    private static void SaveDefaultNtpServerToConfig(string ntpServer)
+    {
+        try
+        {
+            var exeDir = AppDomain.CurrentDomain.BaseDirectory;
+            var configPath = Path.Combine(exeDir, "appsettings.json");
+            var config = new
+            {
+                Ntp = new
+                {
+                    Server = ntpServer
+                }
+            };
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize(config, options);
+            File.WriteAllText(configPath, json, Encoding.UTF8);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unable to save configuration file : {ex.Message}", "Configuration error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
+    private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+    {
+        // update config file with current NTP server
+        SaveDefaultNtpServerToConfig(textBox1.Text);
     }
 }
 

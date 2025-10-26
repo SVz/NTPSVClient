@@ -89,6 +89,7 @@ partial class Form1
         Name = "Form1";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "NTP Client V1.0 by SVz (2o25)";
+        FormClosed += Form1_FormClosed;
         Load += Form1_Load;
         ResumeLayout(false);
         PerformLayout();
