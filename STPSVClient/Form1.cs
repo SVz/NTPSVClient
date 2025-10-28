@@ -176,13 +176,16 @@ public partial class Form1 : Form
     {
         if (checkBox1.Checked)
         {
-            richTextBox1.AppendText("System time will be updated after fetching network time.\n");
             if (!IsAdministrator())
             {
                 var r = MessageBox.Show("The application requires administrator rights to set the system time. Restart as administrator ?", "Required elevation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (r == DialogResult.Yes) { RestartElevated(); }
                 else { checkBox1.Checked = false; }
                 // sinon continuer sans modifier l'heure
+            }
+            else
+            {
+                richTextBox1.AppendText("System time will be updated after fetching network time.\n");
             }
         }
         else
