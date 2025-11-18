@@ -8,8 +8,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>res\Time-Zones.ico</ApplicationIcon>
-        <AssemblyVersion>1.0.3.1028</AssemblyVersion>
-        <FileVersion>1.0.3.1028</FileVersion>
+        <AssemblyVersion>1.0.6.1118</AssemblyVersion>
+        <FileVersion>1.0.6.1118</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>

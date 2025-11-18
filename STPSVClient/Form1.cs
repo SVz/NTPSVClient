@@ -26,9 +26,11 @@ public partial class Form1 : Form
 
     private static void RestartElevated()
     {
+        var builder = new StringBuilder();
         var psi = new ProcessStartInfo
         {
             FileName = Application.ExecutablePath,
+            Arguments = builder.Append("-sync=true").ToString(),
             UseShellExecute = true,
             Verb = "runas"
         };
@@ -80,6 +82,10 @@ public partial class Form1 : Form
         //    if (r == DialogResult.Yes) RestartElevated();
         //    // sinon continuer sans modifier l'heure
         //}
+        if (IsSyncRequestedByArgs())
+        {
+            checkBox1.Checked = true;
+        }
 
         // open config file and read default NTP server
         var configuredServer = LoadDefaultNtpServerFromConfig();
@@ -193,6 +199,50 @@ public partial class Form1 : Form
             richTextBox1.AppendText("System time will NOT be updated after fetching network time.\n");
          }
     }
+
+    private static bool IsSyncRequestedByArgs()
+    {
+        var args = Environment.GetCommandLineArgs();
+        for (int i = 1; i < args.Length; i++)
+        {
+            var a = args[i].Trim();
+
+            // supporter -sync=value, /sync=value, --sync=value, -sync:value
+            string normalized = a;
+            if (normalized.StartsWith("--") || normalized.StartsWith("-") || normalized.StartsWith("/"))
+            {
+                normalized = normalized.TrimStart('-', '/');
+            }
+
+            // remplacer ':' par '=' pour prise en charge '-sync:true'
+            normalized = normalized.Replace(':', '=');
+
+            var parts = normalized.Split(new[] { '=' }, 2);
+            if (parts.Length == 2)
+            {
+                if (parts[0].Equals("sync", StringComparison.OrdinalIgnoreCase))
+                {
+                    var v = parts[1].Trim().Trim('"');
+                    if (v.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                        v.Equals("1", StringComparison.OrdinalIgnoreCase) ||
+                        v.Equals("yes", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                // accepter '-sync' seul comme vraie demande
+                if (parts[0].Equals("sync", StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
 
     public class NtpClient
     {
